@@ -1,0 +1,523 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Festival AI Lugano 2026</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+/* Layout: intestazione con legenda, Gantt orizzontale (una corsia per sala), percorso in lista; ogni sessione si apre in una scheda a popup (foglio dal basso su telefono) */
+:root {
+  --bg: #f5f6fa;
+  --surface: #ffffff;
+  --fg: #151a2d;
+  --muted: #5a6280;
+  --line: #dde1ec;
+  --brand: #d0246c;          /* accento provvisorio: da sostituire con il colore del sito */
+  --must: #1d3fb0;  --must-fg: #ffffff;
+  --rec: #4a78e6;   --rec-fg: #ffffff;
+  --opt: #dce7fe;   --opt-fg: #1a3389; --opt-bd: #98b4f4;
+  --other: #eceef4; --other-fg: #4a5170;
+  --brk: #e3e6ee;
+  --star: #f2b705;
+  --font-d: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --font-b: "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-m: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1120; --surface: #161a2c; --fg: #e8ebf5; --muted: #9aa3c2; --line: #283050;
+    --brand: #f05a95;
+    --must: #3f6cf0; --must-fg: #ffffff;
+    --rec: #26438f;  --rec-fg: #e3eaff;
+    --opt: #18223f;  --opt-fg: #b9c9ff; --opt-bd: #34498c;
+    --other: #1d2236; --other-fg: #a3abc6;
+    --brk: #191d2e;
+    --star: #ffcc33;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1120; --surface: #161a2c; --fg: #e8ebf5; --muted: #9aa3c2; --line: #283050;
+  --brand: #f05a95;
+  --must: #3f6cf0; --must-fg: #ffffff;
+  --rec: #26438f;  --rec-fg: #e3eaff;
+  --opt: #18223f;  --opt-fg: #b9c9ff; --opt-bd: #34498c;
+  --other: #1d2236; --other-fg: #a3abc6;
+  --brk: #191d2e;
+  --star: #ffcc33;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-b); font-size: 15px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 56px;
+}
+.wrap { max-width: 1240px; margin: 0 auto; display: grid; gap: 28px; }
+
+header { display: grid; gap: 10px; }
+.eyebrow { font-family: var(--font-m); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--brand); }
+h1 { font-family: var(--font-d); font-weight: 700; font-size: clamp(28px, 4.4vw, 44px); line-height: 1.05; margin: 0; text-wrap: balance; }
+.sub { color: var(--muted); margin: 0; max-width: 68ch; }
+
+.controls { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; justify-content: space-between; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 13px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 7px; }
+.sw { width: 18px; height: 12px; border-radius: 3px; display: inline-block; }
+.sw.must { background: var(--must); }
+.sw.rec { background: var(--rec); }
+.sw.opt { background: var(--opt); border: 1px solid var(--opt-bd); }
+.sw.alt { background: var(--opt); border: 1px dashed var(--opt-bd); }
+.sw.other { background: var(--other); border: 1px solid var(--line); }
+.sw.brk { background: repeating-linear-gradient(135deg, var(--brk) 0 4px, var(--line) 4px 6px); }
+.star { color: var(--star); }
+
+.toggle { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; user-select: none; }
+.toggle input { width: 18px; height: 18px; accent-color: var(--must); }
+
+/* Gantt */
+.gantt { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow-x: auto; overscroll-behavior-x: contain; }
+.grid { display: grid; grid-template-columns: var(--lab) var(--tw); position: relative; }
+.lab {
+  position: sticky; left: 0; z-index: 3; background: var(--surface);
+  border-right: 1px solid var(--line); border-bottom: 1px solid var(--line);
+  padding: 10px; display: flex; flex-direction: column; justify-content: center; gap: 2px;
+}
+.lab b { font-family: var(--font-d); font-size: 14px; font-weight: 600; line-height: 1.15; }
+.lab small { font-size: 11px; color: var(--muted); line-height: 1.25; }
+.axis { position: relative; height: 34px; border-bottom: 1px solid var(--line); }
+.tick { position: absolute; top: 0; bottom: 0; border-left: 1px solid var(--line); }
+.tick span { position: absolute; top: 8px; left: 6px; font-family: var(--font-m); font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.tick.half { border-left-style: dotted; }
+.track {
+  position: relative; min-height: 84px; border-bottom: 1px solid var(--line);
+  background-image: repeating-linear-gradient(90deg, var(--line) 0 1px, transparent 1px calc(var(--px) * 60));
+  background-size: calc(var(--px) * 60) 100%;
+}
+.blk {
+  position: absolute; top: 8px; bottom: 8px; border-radius: 6px; border: 1px solid transparent;
+  padding: 5px 7px; overflow: hidden; text-align: left; cursor: pointer;
+  font: inherit; display: flex; flex-direction: column; gap: 1px; min-width: 0;
+  transition: opacity .15s, transform .15s;
+}
+.blk:hover { transform: translateY(-1px); }
+.blk:focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; z-index: 2; }
+.blk .t { font-family: var(--font-m); font-size: 10.5px; opacity: .85; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.blk .n { font-weight: 600; font-size: 12.5px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.blk .ti { font-size: 11.5px; line-height: 1.25; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; opacity: .92; }
+.blk.compact { padding: 4px 3px; align-items: center; justify-content: center; }
+.blk.compact .t, .blk.compact .ti { display: none; }
+.blk.compact .n { font-size: 11px; text-overflow: clip; }
+.blk.must { background: var(--must); color: var(--must-fg); }
+.blk.rec { background: var(--rec); color: var(--rec-fg); }
+.blk.opt, .blk.alt { background: var(--opt); color: var(--opt-fg); border-color: var(--opt-bd); }
+.blk.alt { border-style: dashed; }
+.blk.other { background: var(--other); color: var(--other-fg); border-color: var(--line); }
+.blk.brk { background: repeating-linear-gradient(135deg, var(--brk) 0 6px, transparent 6px 10px); color: var(--muted); border-color: var(--line); cursor: default; }
+.blk.brk:hover { transform: none; }
+.blk .s { color: var(--star); margin-right: 3px; }
+.dim .blk.other, .dim .blk.brk { opacity: .3; }
+
+.now { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--brand); z-index: 4; pointer-events: none; }
+.now::after { content: attr(data-label); position: absolute; top: 2px; left: 5px; font-family: var(--font-m); font-size: 11px; color: var(--brand); white-space: nowrap; }
+
+.hint { font-size: 12.5px; color: var(--muted); margin: -16px 0 0; }
+
+/* Percorso */
+section h2.sec { font-family: var(--font-d); font-size: 22px; margin: 0 0 12px; }
+.route { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.route li { display: block; }
+.route button {
+  width: 100%; font: inherit; color: inherit; text-align: left; cursor: pointer;
+  display: grid; grid-template-columns: 58px 112px minmax(0, 1fr) auto; gap: 12px; align-items: baseline;
+  padding: 10px 12px; border-radius: 8px; background: var(--surface);
+  border: 1px solid var(--line); border-left: 4px solid var(--opt-bd);
+}
+.route button:hover { border-color: var(--opt-bd); }
+.route button:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.route li.must button { border-left-color: var(--must); }
+.route li.rec button { border-left-color: var(--rec); }
+.route li.alt button { border-left-style: dashed; }
+.route .tm { font-family: var(--font-m); font-size: 13px; font-variant-numeric: tabular-nums; }
+.route .rm { font-size: 12.5px; color: var(--muted); }
+.route .ttl { min-width: 0; }
+.route .ttl b { font-weight: 600; }
+.route .ttl span { color: var(--muted); }
+.route .go { color: var(--muted); font-size: 18px; line-height: 1; }
+.foot { font-size: 12.5px; color: var(--muted); }
+.foot a { color: inherit; }
+
+/* Scheda a popup */
+dialog#card {
+  border: 1px solid var(--line); border-radius: 14px; padding: 0;
+  width: min(640px, calc(100vw - 32px)); max-height: min(86vh, 760px);
+  background: var(--surface); color: var(--fg);
+  box-shadow: 0 24px 60px rgba(8, 12, 30, .35);
+}
+dialog#card::backdrop { background: rgba(8, 12, 30, .55); }
+dialog#card[open] { display: flex; flex-direction: column; }
+.c-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px 10px 20px; border-bottom: 1px solid var(--line); }
+.c-body { padding: 16px 20px 20px; overflow-y: auto; display: grid; gap: 14px; overscroll-behavior: contain; }
+.c-foot { display: flex; justify-content: space-between; gap: 10px; padding: 10px 16px calc(12px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--line); }
+.x { font: inherit; font-size: 22px; line-height: 1; width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--line); background: transparent; color: var(--fg); cursor: pointer; }
+.x:focus-visible, .nav:focus-visible, .c-body a:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.nav { font: inherit; font-size: 14px; font-weight: 500; padding: 9px 14px; border-radius: 8px; border: 1px solid var(--line); background: transparent; color: var(--fg); cursor: pointer; min-height: 40px; }
+.nav:disabled { opacity: .35; cursor: default; }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; }
+.pill.must { background: var(--must); color: var(--must-fg); }
+.pill.rec { background: var(--rec); color: var(--rec-fg); }
+.pill.opt, .pill.alt { background: var(--opt); color: var(--opt-fg); border: 1px solid var(--opt-bd); }
+.pill.alt { border-style: dashed; }
+.pill.other { background: var(--other); color: var(--other-fg); border: 1px solid var(--line); }
+.meta { font-family: var(--font-m); font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 14px; font-variant-numeric: tabular-nums; }
+.c-body h2 { font-family: var(--font-d); font-size: 22px; line-height: 1.2; margin: 0; text-wrap: balance; }
+.who { display: grid; gap: 1px; }
+.who b { font-weight: 600; }
+.who small { color: var(--muted); font-size: 13.5px; }
+.blockx { display: grid; gap: 4px; }
+.blockx h3 { font-family: var(--font-m); font-size: 11.5px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0; }
+.blockx p { margin: 0; }
+.blockx.why { background: var(--opt); border: 1px solid var(--opt-bd); color: var(--opt-fg); border-radius: 10px; padding: 12px 14px; }
+.blockx.why h3 { color: inherit; opacity: .8; }
+.blockx ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.blockx .linkish { display: block; width: 100%; font: inherit; color: inherit; background: none; border: 0; padding: 0 0 0 14px; position: relative; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; text-align: left; }
+.blockx .linkish::before { content: "›"; position: absolute; left: 0; text-decoration: none; color: var(--muted); }
+.src { font-size: 13px; color: var(--muted); }
+.src a { color: inherit; }
+
+@media (max-width: 640px) {
+  .lab small { display: none; }
+  .lab b { font-size: 13px; }
+  .route button { grid-template-columns: 52px minmax(0, 1fr) auto; gap: 2px 10px; }
+  .route .tm { grid-row: 1 / span 2; }
+  .route .rm { grid-column: 2; grid-row: 2; }
+  .route .ttl { grid-column: 2; grid-row: 1; }
+  .route .go { grid-column: 3; grid-row: 1 / span 2; align-self: center; }
+  dialog#card {
+    width: 100vw; max-width: 100vw; max-height: 90vh; margin: auto 0 0; border-radius: 16px 16px 0 0;
+    border-bottom: 0;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  dialog#card[open] { animation: rise .18s ease-out; }
+  @keyframes rise { from { transform: translateY(16px); opacity: .6; } to { transform: none; opacity: 1; } }
+}
+@media (prefers-reduced-motion: reduce) { .blk { transition: none; } .blk:hover { transform: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Giovedì 19 novembre 2026 · Palazzo dei Congressi, Lugano</div>
+    <h1>Festival AI Lugano: il programma in una vista</h1>
+    <p class="sub">Tutte le sale dalle 08:00 alle 17:50, con il percorso per chi sviluppa software in un ente pubblico. Tocca un blocco o una riga del percorso per aprire la scheda completa.</p>
+  </header>
+
+  <div class="controls">
+    <div class="legend" aria-label="Legenda">
+      <span><i class="sw must"></i><span class="star">★</span> Imperdibile</span>
+      <span><i class="sw rec"></i>Interessante</span>
+      <span><i class="sw opt"></i>Se c'è tempo</span>
+      <span><i class="sw alt"></i>Alternativa in sovrapposizione</span>
+      <span><i class="sw other"></i>Altro</span>
+      <span><i class="sw brk"></i>Pausa</span>
+    </div>
+    <label class="toggle" for="focus"><input type="checkbox" id="focus" checked> Metti in evidenza il percorso</label>
+  </div>
+
+  <div class="gantt" id="gantt" role="region" aria-label="Programma per sala e orario" tabindex="0"></div>
+  <p class="hint">Il grafico scorre in orizzontale. Agenda aggiornata dall'organizzazione il 12.11.2026.</p>
+
+  <section>
+    <h2 class="sec">Il percorso, in ordine</h2>
+    <ol class="route" id="route"></ol>
+  </section>
+
+  <p class="foot">Fonti: <a href="https://festival-ai.com/agenda/" target="_blank" rel="noopener">agenda ufficiale</a> e <a href="https://festival-ai.com/speakers/" target="_blank" rel="noopener">pagina speaker</a> del Festival AI. Le descrizioni sono riassunti degli abstract pubblicati dall'organizzazione; il programma può ancora cambiare.</p>
+</div>
+
+<dialog id="card" aria-labelledby="c-title">
+  <div class="c-head">
+    <span id="c-pill" class="pill"></span>
+    <button type="button" class="x" id="c-close" aria-label="Chiudi">×</button>
+  </div>
+  <div class="c-body" id="c-body"></div>
+  <div class="c-foot">
+    <button type="button" class="nav" id="c-prev">‹ Precedente</button>
+    <button type="button" class="nav" id="c-next">Successivo ›</button>
+  </div>
+</dialog>
+
+<script>
+const LANES = [
+  { id: "A",  name: "Sala A",         sub: "Apertura e AI Geniale" },
+  { id: "B2", name: "Sala B2",        sub: "Dev & Engineering, Cyber, Human & Society" },
+  { id: "B3", name: "Sala B3",        sub: "Cyber & Digital Trust, HR Ticino" },
+  { id: "P",  name: "Palco Pubblico", sub: "Tutti i biglietti, max 100 posti" },
+  { id: "F",  name: "Sala FUTURE",    sub: "AI Challenge, primo piano sala C" }
+];
+const PRIO = {
+  must: "★ Imperdibile", rec: "Interessante", opt: "Se c'è tempo",
+  alt: "Alternativa in sovrapposizione", other: "Fuori percorso", brk: "Pausa"
+};
+const NOABS = "L'organizzazione non ha pubblicato un abstract per questo intervento.";
+const FINAL = "Progetto finalista della Call4Project: presentazione di 10 minuti, poi domande della giuria e voto del pubblico.";
+
+// [sala, inizio, fine, relatore, titolo, priorità, ruolo, descrizione, perché seguirlo]
+const S = [
+  ["A","08:00","08:13","ATED","Apertura del Festival","other","Associazione Mantello Tech ICT e Digital Ticino","Apertura ufficiale a cura di ATED, l'associazione che organizza il festival. Plenaria aperta a tutti i biglietti."],
+  ["A","08:13","08:15","Giuria Call4Project","Presentazione della giuria","other","","Presentazione della giuria che nel pomeriggio valuterà i sei progetti finalisti della Call4Project."],
+  ["A","08:15","08:30","Robobidone, Teotronico, Robotanika","The Family Robot","other","","Momento dimostrativo con i robot del festival."],
+  ["A","08:30","09:00","Giulio Deangeli","Are We Solving the Right Problems?","opt","AI in Medicine, MD-PhD (Cambridge, Harvard, Sant'Anna), Forbes 30 Under 30","Modelli molto accurati e pubblicazioni su riviste di prestigio non bastano. Se le metriche di successo sono quelle sbagliate, l'AI finisce per ottimizzare problemi irrilevanti: risultati eleganti che sembrano progresso ma non portano vere scoperte scientifiche.","Keynote di apertura: un buon richiamo a misurare le cose giuste prima di ottimizzarle."],
+  ["A","09:00","09:15","Marchesi, Foletti","Saluti istituzionali","other","Consigliere di Stato e Sindaco di Lugano","Saluti delle autorità cantonali e cittadine."],
+  ["A","09:15","09:45","Lorenzo Cominelli e ABEL","AI becomes Human","opt","CEO e co-fondatore, Cartesia","L'AI diventa più utile quando è integrata in un corpo, in una memoria, in un'esperienza e in una dimensione emotiva. Il caso è Abel, umanoide empatico sviluppato a Pisa: applicazioni, opportunità e limiti, con una riflessione etica finale sul rapporto tra persone e macchine.","Dimostrazione dal vivo con un umanoide: il momento più spettacolare della mattina."],
+  ["A","10:10","10:30","Domenico Talia","Multi-Agent Coordination: Progettare Framework Distribuiti e Scalabili per l'IA","alt","Professore, Università della Calabria","Gli agenti basati su LLM ragionano, invocano strumenti e si adattano, ma oggi lo fanno soprattutto dentro il ciclo di esecuzione di un singolo agente. Il talk propone una versione distribuita del paradigma ReAct, in cui più agenti autonomi si suddividono i compiti all'interno di un workflow distribuito.","Alternativa più accademica a Tufano, che parla nello stesso momento in Sala B2."],
+  ["A","10:30","10:45","Alessandro Giaume","Dal Futuro del Lavoro al Lavoro del Futuro","other","Senior Advisor Strategy & Innovation","Da quando l'AI generativa è entrata nella vita di tutti, il lavoro è cambiato come mai prima. Cosa significa usarla in modo pervasivo, cosa aspettarsi nel breve periodo e come limitarne gli effetti sociali."],
+  ["A","10:45","11:05","Loris Roveda","Physical AI: from Autonomous Agents to Human Enhancement","other","Professore di Embodied Intelligence for Robotics, IDSIA USI-SUPSI e Politecnico di Milano","Con il progetto europeo PHYS-EXO, AI, percezione multimodale e robotica avanzata trasformano gli esoscheletri attivi in assistenti intelligenti che aumentano forza, consapevolezza dell'ambiente e capacità decisionale in industria, soccorso e medicina."],
+  ["A","11:05","11:25","Sergio Matteo Savaresi","Autonomous Driving: Physical AI Enabling a New Era of Personal Mobility in Europe","other","Professore ordinario, Politecnico di Milano","La guida autonoma come esempio di Physical AI: un conducente artificiale che percepisce, decide e agisce. Presenta il progetto AIDA del Politecnico di Milano e NIULINX per sviluppare una tecnologia europea di guida autonoma e rafforzare la sovranità tecnologica."],
+  ["A","11:25","11:45","Jacopo Paoletti","AIeconomi, Economia, Impresa e Umano. Nell'era dell'intelligenza artificiale","other","",NOABS],
+  ["A","11:45","12:05","Alessandro Tagliati e Vincenzo Fornaro","Colibrì: la memoria non è un limite","alt","Co-fondatori di Colibrì","Il progetto nasce quasi per gioco da una domanda: si può far girare un modello da 744 miliardi di parametri su un normale computer? Dal primo esperimento è nato un proof of concept apprezzato dalla community, oggi diventato un motore di inferenza open source che supporta nove modelli.","Alternativa a Sleumer e all'inizio di Soldano in B2, se l'inferenza locale ti interessa più dal lato open source che hardware."],
+  ["A","12:05","12:35","Tavola rotonda","Discussione con i relatori","other","","Con Patrice Pfirter (CTO, laRegione), Nicola Bianchi (NVIDIA), Fabio Viola, Sergio Matteo Savaresi, Alessandro Giaume e altri relatori."],
+  ["A","12:35","13:05","","Pausa pranzo","brk"],
+  ["A","13:05","13:20","Gabriele Rosani","Usiamo davvero bene l'IA al lavoro? Due opportunità ancora da esplorare","other","Autore Harvard Business Review, Director Capgemini Invent","L'adozione dell'AI nelle organizzazioni accelera, ma la domanda ora è come usarla bene per creare valore. Sulla base di ricerche globali e sperimentazioni con migliaia di manager, il talk indica due punti ciechi che oggi limitano l'impatto dell'AI generativa sul lavoro."],
+  ["A","13:20","13:35","Victor Barasuol","Legged Robotics: The Convergence of AI, Robotics and Advanced Technologies","other","Ricercatore, Istituto Italiano di Tecnologia","I robot quadrupedi uniscono AI, controllo, percezione e meccatronica per muoversi dove le ruote non arrivano. Esempi dall'IIT: interventi di emergenza, tecnologie pulite, agricoltura di precisione e future missioni lunari."],
+  ["A","13:35","13:50","Simone Arcagni","Tra abbandono e accelerazione: dove sta l'IA oggi? E domani?","other","Professore di cultura digitale, Università IULM",NOABS],
+  ["A","13:50","14:05","Fabio Viola","Le sfide culturali dell'era della creazione partendo dalla diretta immaginazione","other","Videogame designer, direttore creativo e curatore museale","L'AI generativa sposta il peso della creatività sulle fasi iniziali di immaginazione e su quelle finali di post-produzione, riducendo il lavoro tecnico intermedio. Dai videogiochi ai musei, le sfide culturali di un'epoca in cui creare significa progettare mondi, relazioni e personalizzazione."],
+  ["A","14:05","14:25","Chiara Arlati","Efficienti fino a scomparire: cosa stai perdendo mentre l'AI pensa per te","other","LinkedIn Top Voice, Adjunct Professor POLIMI GSoM","Delegare all'AI una scelta dopo l'altra porta al deskilling, un processo di cui si parla poco. Il talk sostiene che proprio ora si apre la possibilità di esprimere meglio talento e umanità, ma solo a una condizione."],
+  ["A","14:25","14:45","Stefano Besana","AI, Futuro del lavoro, competenze e metacognizione","other","Partner Deloitte, PhD in Psicologia","L'AI cambia il modo in cui leggiamo la realtà, valutiamo le informazioni e attribuiamo responsabilità. Al centro c'è la metacognizione, cioè la capacità di riflettere su come pensiamo e decidiamo, insieme alle competenze per lavorare con l'AI e ripensare ruoli e processi."],
+  ["A","14:45","15:00","Cristian Cosentino","Chi ha dato le chiavi all'intelligenza artificiale?","opt","PhD in ICT, AI Lead Engineer (sponsor Moveo)","L'AI passa dal generare risposte all'eseguire azioni, ma chi ne definisce i limiti? Un percorso tra opportunità, rischi e architetture dell'AI agentica, per progettare sistemi capaci di agire senza rinunciare a sicurezza, controllo e responsabilità.","Architetture agentiche con attenzione a sicurezza e controllo. È uno slot sponsor."],
+  ["A","15:00","15:10","Diego Facchini","L'A.I. al servizio del recruiting: meno tempo sui CV","other","Founder & CEO, Data-Driven.Ai (sponsor)","Con il caso Talently: l'AI analizza le candidature, confronta le competenze e propone shortlist con valutazioni motivate. La scelta resta al recruiter, che guadagna tempo per colloqui e ascolto."],
+  ["A","15:20","15:30","","Preparazione palco","brk"],
+  ["A","15:30","16:00","Alex Braga","Spettacolo","other","","Spettacolo dal vivo in Sala A."],
+  ["A","16:00","16:10","Salvatore Cataldo","Same Agent, Same Question, Different Answers","other","Head of Azure Solutions, Moresi.com (sponsor)","Quanto ci si può fidare delle azioni di un agente se i dati sono frammentati, eterogenei o fuori controllo? Sicurezza, governance e sovranità dei dati come fondamenta dell'AI agentica."],
+  ["A","16:10","16:25","Sergio Ravera","Intervento sponsor","other","Sponsor Artera",NOABS],
+  ["A","16:25","16:40","Manuela Balli","AI e tecnologie immersive: nuove esperienze per clienti e imprese","other","Direttrice Osservatorio XR Technologies & Immersive Reality","Realtà estesa e AI nell'industria: progettazione immersiva, prototipi virtuali, digital twin e formazione intelligente per accelerare ricerca e sviluppo, ridurre i costi e migliorare manutenzione e supporto remoto."],
+  ["A","16:40","16:55","Guido Callegari","Da advertising a proprietà intellettuale: smart production nell'era del branded entertainment","other","Director e Creative Director, GRAiL","Sempre più marchi creano personaggi e mondi narrativi propri invece di comprare attenzione con la pubblicità. Un caso reale per un grande brand, con quattro personaggi e un trailer cinematografico, mostra come una produzione che unisce creatività umana e AI cambi tempi e modelli di lavoro."],
+  ["A","16:55","17:25","Tavola rotonda","Discussione con i relatori","other","","Con Stefano Besana, Chiara Arlati, Guido Callegari e Chris Pozzoli."],
+
+  ["B2","10:15","10:35","Michele Tufano","AI Agents at Google and the future of Software Engineer","must","Senior Software Engineer, GenAI @ Google","Fondamenti e architetture degli agenti AI. Come Google li usa su larga scala per correggere bug, generare test e valutare i risultati. Chiude con lo spec-driven development: specifiche in linguaggio naturale che guidano l'esecuzione degli agenti, e cosa cambia nel ruolo di chi sviluppa.","Il quadro più completo su agenti e sviluppo software, visto da chi lo fa su scala industriale."],
+  ["B2","10:35","10:55","Giulia Caffi","Intelligenza Artificiale e Medicina: dalla ricerca alla pratica clinica","other","Medico, ricercatrice in Health Informatics e interfacce cervello-computer","Solo una piccola parte degli algoritmi sviluppati in ricerca arriva davvero al paziente. Le sfide su dati, validazione, spiegabilità, privacy e regolamentazione, fino alle interfacce cervello-computer e alle nuove competenze per chi lavora in sanità."],
+  ["B2","10:55","11:15","Stefano Maestri","Your Agent Harness Should Be Tailor-Made","must","AI Engineering (maeste.it, risorseartificiali.com)","Un agente funziona bene solo con un harness costruito su misura per sviluppatore, progetto e obiettivo. Con esempi prima e dopo: prompt, strumenti, memoria, controllo del ciclo, guardrail e budget, e una definizione precisa di \"finito\" che evita cicli infiniti, errori e token sprecati.","Il più operativo della giornata: cose da applicare subito a come usi gli agenti nel codice."],
+  ["B2","11:15","11:35","Zelda Ailine Luconi","Best Practices for Designing Multi-Agent Systems","rec","Senior Cloud Architect & Data Engineer","Un singolo agente monolitico spreca risorse e cede sui workflow complessi. Come tradurre i requisiti di business in un'architettura multi-agente efficiente con il principio \"un task, un agente\", il Model Context Protocol e la comunicazione Agent-to-Agent.","Pratiche concrete su MCP e architetture multi-agente."],
+  ["B2","11:35","11:45","","Coffee break","brk"],
+  ["B2","11:45","11:55","Monica Sleumer","Vibe Coding 2027: in China and worldwide","opt","Senior Research Scientist, Roche","Come iniziare con i modelli per il codice, usare agenti per semplificarsi la vita e confrontare sistemi proprietari come Claude e ChatGPT con i modelli open source. Tocca anche il divario tecnologico tra Stati Uniti e Cina e il futuro della programmazione.","Dieci minuti introduttivi: utile se resti comunque in sala."],
+  ["B2","11:55","12:15","Alessio Soldano","After the Model Loads: cosa rende davvero efficace l'inferenza AI in locale","rec","Sr. Manager Software Engineering, Red Hat (IBM)","Caricare un modello sul proprio computer è solo il primo passo: le prestazioni dipendono da architettura, memoria, quantizzazione e hardware. Esperimenti su dispositivi AMD mostrano cosa portano le ottimizzazioni mirate, e il ruolo dell'open source e della collaborazione tra ricerca e industria.","Modelli in locale: rilevante dove i dati non possono uscire dall'organizzazione."],
+  ["B2","12:15","12:35","Christian Pala","Agenti AI in produzione nei settori regolamentati: dal prototipo alla compliance","must","Senior NLP Engineer, Artificialy SA",NOABS,"Dal prototipo alla compliance in contesti regolamentati: il tema più vicino al lavoro in un ente pubblico."],
+  ["B2","12:35","12:55","Daniele Madama e Daniele Salvagni","Deploy, Manage and Use ANY Model in AWS with Your Own Private Data","rec","Helix Cloud: CEO e AWS Authorized Instructor; MLOps Engineer","Le applicazioni usano sempre più LLM, gestiti in modi diversi e con molta complessità operativa. Con Amazon Bedrock si centralizza l'accesso ai modelli in un unico punto, uniformando uso e manutenzione, e si vede come usare il modello svizzero Apertus con i propri dati privati.","La parte su Apertus con dati privati. Coincide esattamente con Dell'Ambrogio in B3: va scelto uno dei due."],
+  ["B2","12:55","13:15","Krzysztof Cieślak","The Next Frontier: Agentic Collaborative Environments","must","Staff Research Engineer, GitHub Next; co-creatore di Copilot","Gli strumenti di sviluppo basati sull'AI trasformano il lavoro, ma senza pianificazione e coordinamento portano a inefficienze, lavoro duplicato e conflitti. Le sfide dell'ingegneria agentica e come allineare persone, obiettivi e agenti per sviluppare software insieme.","Come lavorare in team quando anche gli agenti scrivono codice, da chi ha contribuito a creare Copilot."],
+  ["B2","13:15","13:45","","Pausa pranzo","brk"],
+  ["B2","13:45","14:05","Giorgio Sbaraglia","AI e Cybersecurity: come sono cambiati gli attacchi informatici con l'Intelligenza Artificiale","rec","Information & Cyber Security Advisor, Comitato Direttivo Clusit","Con l'AI gli attacchi informatici sono diventati più evoluti, automatizzati e quindi più pericolosi. Casi già avvenuti di attacchi con AI agentica, i rischi che comportano e l'uso dell'AI per scoprire e sfruttare vulnerabilità 0-day.","Il quadro aggiornato delle minacce che toccano anche i sistemi di un ente pubblico."],
+  ["B2","14:05","14:25","Alessandro Oteri","vIAggio nella \"società algoritmica\": tecnologIA, algoretica e cambIAmento socIAle","other","CISO certificato, responsabile ISO 27001","Gli algoritmi orientano l'informazione che riceviamo, le decisioni e le relazioni. Un viaggio nella società algoritmica tra responsabilità, trasparenza, fiducia e centralità della persona."],
+  ["B2","14:25","14:35","Alessandro Vetrano","Dove finiscono i dati che diamo all'AI?","alt","Sales Lead, Ermes Cyber Security","Nessun abstract pubblicato. Una versione precedente dell'agenda descriveva il tema così: usiamo ogni giorno strumenti di AI sviluppati fuori dall'Europa, e la domanda è dove finiscono i dati che condividiamo con loro.","Si sovrappone con Brooks in Sala FUTURE: dopo Codogno se ne sceglie uno."],
+  ["B2","14:50","15:10","Crenguta Leaua","Rules, Humans and Algorithms: Who Governs Our Society and Human Relations?","other","Arbitrato internazionale; moderatrice della sessione Human & Society",NOABS],
+  ["B2","15:10","15:30","Emanuele Carpanzano","AI Sovrana: quando dati e conoscenza restano patrimonio dell'organizzazione","rec","Chief Science Officer, Prem AI","L'AI generativa entra nei processi critici di imprese e istituzioni, ma confidenzialità e verificabilità restano sfide aperte, così come la capacità di trasformare ogni interazione con l'AI in conoscenza che resta all'organizzazione. L'approccio di Prem AI all'AI sovrana.","Dati e conoscenza che restano in casa: un tema da ente pubblico."],
+  ["B2","15:30","15:50","Mariana Coelho Silva","From Search to Reasoning: Keeping Lawyers in Control of Legal AI","other","AI Product Manager, Jus Mundi","Come un'AI legale specializzata può supportare gli avvocati senza sostituirne il giudizio: ricerca, redazione, scelta di arbitri ed esperti, con dati affidabili, citazioni trasparenti e risultati verificabili."],
+  ["B2","15:50","16:10","Martin Ciupa","Before AI Holds Power: The SANITI Reality Simulation Model","opt","Imprenditore AI e keynote speaker","Come valutare un'AI avanzata prima di darle autorità nel mondo reale. Il Reality Simulation Model proposto da SANITI usa condizioni simulate per far emergere inganno, manipolazione, ricerca di potere e collusione. I test danno evidenza di rischio, mai garanzia di sicurezza assoluta.","Valutazione e test di sistemi AI prima di dar loro autonomia."],
+  ["B2","16:10","16:30","Sabin Dima","The Rise of Autonomous Organizations: From AI Workers to Zero Humans Companies","other","Founder, Humans.ai",NOABS],
+  ["B2","16:30","16:50","Jean Wu","AI: Exploring the Shift from Compliance Tool to Rule-Making Machinery, Through the Lens of ESG","other","Director Green Office, Adjunct Professor Franklin Switzerland","L'AI aiuta le aziende a capire, applicare e monitorare le regole ESG e potrebbe arrivare a contribuire a scriverle. Poiché ogni governo vi incorpora assunti politici diversi, la domanda è chi governa i sistemi che governano il comportamento delle imprese."],
+  ["B2","16:50","17:10","Marco Casanova","Establishing a Digital État Civil through the Human Dignity FIRST Constitutional Framework","other","ESG Center of Excellence","Con l'AI che ridisegna l'identità digitale, il controllo delle infrastrutture tocca dignità, diritti e responsabilità democratica. Il talk propone uno stato civile digitale e un quadro costituzionale che tenga i diritti umani sopra i sistemi tecnici."],
+  ["B2","17:10","17:30","Petru Emanuel Zlatescu","Decoding the Rule of Law: Defending Fundamental Rights in the Age of Algorithmic Governance","other","Dr. iur., ESG Center of Excellence","La governance algoritmica mette alla prova i quadri costituzionali. Come proteggere diritti fondamentali e privacy, e quali garanzie legali servono per difendere lo stato di diritto."],
+  ["B2","17:30","17:50","Crenguta Leaua","Tavola rotonda","other","","Discussione tra i relatori della sessione Human & Society."],
+
+  ["B3","10:10","10:15","ATED","Apertura e saluti","other","","Apertura della sessione Cyber & Digital Trust."],
+  ["B3","10:15","10:35","Stefano Mele","L'illusione della neutralità dell'intelligenza artificiale","other","Partner Gianni & Origoni, cybersecurity e data privacy","L'AI non è una tecnologia neutrale: sta diventando uno strumento di potere che incide su sicurezza nazionale, geopolitica, competitività e autonomia strategica degli Stati. Come cambia il ruolo del diritto, chiamato a governarne anche le implicazioni strategiche ed economiche."],
+  ["B3","10:35","10:55","Gérald Vernez","Cybersicurezza e politica: bilancio e prospettive","other","Fondatore Sonar Partners, presidente Swiss Digital Pact","La Svizzera si occupa di cybersicurezza da quasi 25 anni. Un bilancio: abbiamo investito abbastanza per proteggere il nostro spazio informativo, e quale futuro digitale vogliamo?"],
+  ["B3","10:55","11:15","Pieralberto Nati","L'AI tra sicurezza, software e regole","other","CEO, Advanced CGS Group SA","L'AI collega cybersecurity, sviluppo software, conformità e governance. Tra nuove vulnerabilità e i requisiti di AI Act, NIS2, DORA, CRA e GDPR serve un approccio integrato; esperienze concrete su come l'AI può migliorare sicurezza, gestione del rischio e resilienza."],
+  ["B3","11:15","11:25","Matteo Colella con Luigi D'Amato","Il paradosso della fiducIA: possiamo fidarci di una macchina che si lascia convincere?","alt","Senior Security Advisor; Head of Red Team Operations (sponsor NEXUS)","Leggi e principi etici dicono come un'AI dovrebbe comportarsi, ma qualcuno può aggirarne i limiti e ottenere risposte o azioni non previste. Un'AI non si può considerare sicura solo perché progettata per esserlo: servono verifiche concrete e simulazioni di attacco.","Test di sicurezza delle AI. Coincide con Luconi in B2."],
+  ["B3","11:25","11:45","Marie de Fréminville","Comment avoir confiance dans les partenaires, les sous-traitants, et les services de l'Etat ?","other","Presidente, Starboard Advisory","In francese. La fiducia in partner, fornitori e servizi pubblici parte dalla conformità, che però va adattata all'organizzazione e da sola non basta. Spetta a dirigenti e consigli farsi carico dei rischi cyber con competenze, budget e processi di protezione e rilevamento."],
+  ["B3","11:45","12:05","Rocco Sicilia","Detection e comprensione degli attacchi cyber: quanto riesce a \"capire\" l'AI?","other","Cyber Security Engineer","Confronto tra promesse dei vendor, ricerca scientifica e prestazioni reali dell'AI nell'analisi automatica di log ed eventi di sicurezza: limiti, affidabilità e scenari realistici di impiego nei SOC."],
+  ["B3","12:05","12:25","Paolo Bobbià","Tavola rotonda","other","Moderatore","Con Stefano Mele, Gérald Vernez, Alessandro Oteri e Martino Dell'Ambrogio."],
+  ["B3","12:25","12:35","Rosangela Leone","Data protection nell'era dell'AI: perché la vera tutela è la cultura della privacy","other","Group DPO e Head of AI Compliance, lastminute.com (partner NEXUS)","Come un responsabile della protezione dei dati può usare l'AI per governare l'AI, riducendo la burocrazia e concentrandosi sulle persone dietro i dati. La difesa vera è una cultura della privacy integrata nei processi."],
+  ["B3","12:35","12:55","Martino Dell'Ambrogio","Ho dato le chiavi di casa a un'intelligenza artificiale","alt","Security Architect, Kyos","Con l'AI progetti tecnici complessi diventano processi concreti e ripetibili. Casi reali, dal kernel Linux a Kubernetes, mostrano come gli agenti accelerano lo sviluppo, ma anche gli errori e i rischi di sicurezza che introducono: innovare in fretta senza rinunciare a verifiche e controlli.","Sicurezza degli agenti nello sviluppo. Coincide esattamente con l'intervento AWS in B2: va scelto uno dei due."],
+  ["B3","13:45","14:15","Manuel Buri","How AI Is Rewiring Recruiting","other","Co-founder & MD, PastaHR","In inglese. L'AI cambia il modo di trovare e conquistare talenti: alle macchine il lavoro ripetitivo, alle persone quello umano. Casi reali di clienti su cosa ripensare per restare competitivi."],
+  ["B3","14:15","14:45","Cristian Sala","Il talento non si filtra, si riconosce","other","Direttore Generale AxL, Gruppo Adequat","Screening, matching e shortlist accelerati dall'AI, con la scelta finale che resta al recruiter. Trenta minuti pratici su cosa automatizzare subito, cosa non delegare mai e come evitare che l'efficienza svuoti la selezione di umanità."],
+  ["B3","14:45","15:30","Christian Valentinotti","World Café, Future of Work 1","other","","Laboratorio partecipativo sul futuro del lavoro."],
+  ["B3","15:30","15:45","","Coffee break","brk"],
+  ["B3","15:45","16:15","Jeanne Meister","How C-Suite Leaders Can Reap Value from AI","other","Future of Work Strategist, Staying Human With AI","Online, in inglese. Da un sondaggio su 150 dirigenti nordamericani: il 63% sperimenta l'AI, meno di un terzo è andato oltre i progetti pilota e solo il 3% la considera centrale per il vantaggio competitivo. Cinque lezioni per passare dalla sperimentazione all'adozione in tutta l'azienda."],
+  ["B3","16:15","16:45","Emanuele Magrone","Da People Analytics a People Intelligence: creare, comprendere, agire","other","Head People Analytics, Sunrise","Le People Analytics hanno due lacune: a volte mancano le evidenze, altre volte gli insight non si traducono in azioni. Esempi concreti di come l'AI aiuta a creare nuovi dati, comprenderli e agire."],
+  ["B3","16:45","17:45","Andrea Abbatelli","World Café, Future of Work 2","other","","Secondo laboratorio partecipativo sul futuro del lavoro."],
+
+  ["P","10:10","10:20","Matteo Loro","Da fashion company a fashion-tech: l'AI come infrastruttura, non come gadget di stagione","other","Digital Data & Tech Strategy Manager","Diventare un'azienda fashion-tech non significa generare immagini più belle, ma ridisegnare dati, processi e decisioni. Cosa serve perché l'AI smetta di essere una demo e diventi operatività quotidiana."],
+  ["P","10:20","10:50","Xena Samia Rinaldi","ICE, evoluzione continua dell'educazione","other","Governance, Compliance, Benefit Officer, Little Genius International","In un mondo che accelera, metodi, contenuti e curricula educativi devono evolvere insieme alla conoscenza, per preparare i bambini al mondo che contribuiranno a costruire."],
+  ["P","10:50","11:00","Andrea Caravello","Il Context Layer come vantaggio competitivo degli Agenti AI","other","Growth Marketeer, cello.so","I modelli diventano commodity: il vantaggio sta nel context layer, cioè nel modo in cui un'organizzazione alimenta i propri agenti con dati proprietari, processi interni e memoria operativa. Come progettare agenti che lavorano con contesto reale."],
+  ["P","11:00","11:10","Francesco Marino","Ci penso io: cosa succede quando l'AI smette di parlare e comincia a fare","other","Direttore responsabile, Digitalic","Dall'AI che risponde all'AI che agisce: prenota, compra, paga e tratta al posto nostro. La storia vera di un agente a cui è stato affidato un piccolo negozio con soldi e clienti veri, e le domande da porsi prima di delegare."],
+  ["P","11:10","11:40","Ion Marin e Crenguta Leaua","La musica tra algoritmi, macchine e persone: dove sta l'umano?","other","Direttore d'orchestra, Mozarteum di Salisburgo; arbitrato internazionale",NOABS],
+  ["P","11:40","11:50","Judith Eberl","Intervento sponsor","other","Learning & Development Advisor (sponsor youevolve)","Il successo della trasformazione con l'AI va oltre la tecnologia: i leader devono accompagnare le persone nel cambiamento, e le competenze di leadership del passato non bastano più."],
+  ["P","11:50","12:20","Josephine Condemi","Intelligenze fragili. Trovare il proprio equilibrio tra macchine e desiderio","other","Giornalista, ricercatrice e docente","Un'AI riconosce volti e scrive testi, ma non sa quello che fa e non desidera nulla. Partendo da intelligenza e fragilità, cosa ci distingue dalle macchine e perché la responsabilità delle scelte resta nostra."],
+  ["P","12:20","12:30","Chris Pozzoli","Dall'AI che assiste all'AI che agisce","other","CEO Tessi Switzerland, presidente Swiss Marketing","L'AI passa dall'assistere all'agire dentro i processi aziendali. La sfida non è più sperimentarla ma integrarla nel modello operativo, ripensando processi, ruoli e governance per ottenere valore misurabile."],
+  ["P","12:30","12:40","Stefano Marchese","Da startup a scaleup nell'era dell'AI: algoritmi dentro, ecosistema fuori","other","Vice President e co-founder, Ecosistema Formazione Italia",NOABS],
+  ["P","12:40","13:10","Serena Crippa","Potenziare il talento con l'AI senza smettere di pensare","other","Gen² Future Skills Strategist","Come aiutare i giovani a sfruttare l'AI mantenendo curiosità, autonomia di giudizio e la capacità di distinguere una risposta buona da una solo convincente."],
+  ["P","13:10","13:20","Andrea Santo Sabato","Come si misura la presenza di un brand nelle risposte dei motori AI?","other","Head of SEO & AI Search Optimization (sponsor Natural Index)","Come misurare la visibilità di un brand nelle risposte di ChatGPT, Gemini, Perplexity e AI Overviews, pesare l'effetto di ogni tecnica GEO e calcolarne il ritorno, con un tracking basato su risposte reali."],
+  ["P","13:20","13:30","Claudio Berardi e Yves Zumbühl","Vuoi introdurre l'AI in azienda? Ecco come buttare soldi.","other","Co-founder, botts.ai",NOABS],
+  ["P","13:30","14:00","","Pausa pranzo, Area Expo e networking","brk"],
+  ["P","14:00","14:10","Stefano Mannone","AI is not the product","other","Co-Founder e Head of AI Innovation (sponsor PYB)","L'AI da sola non è un prodotto: vale quando diventa uno strumento che risolve problemi reali. L'approccio di PYB tra creatività, automazione e sviluppo di soluzioni proprietarie."],
+  ["P","14:10","14:20","Matteo Codogno","The Reviewer That Never Sleeps: Building PaperJudge","opt","Technical Leader, wellD (sponsor)","PaperJudge automatizza le revisioni sistematiche della letteratura medica: recupera studi da PubMed, PubMed Central e Cochrane e li valuta secondo i criteri PICO, con un livello di affidabilità e una motivazione verificabile per ogni decisione. Architettura, risultati, limiti e ruolo della supervisione umana.","Un caso concreto di architettura LLM-as-a-judge con decisioni tracciabili. Slot sponsor di 10 minuti."],
+  ["P","14:20","14:40","Fabrizio Rinaldi","Crescere Esseri Umani: una guida pratica per i genitori nell'era dell'AI","other","Digital Strategist","Non un intervento su tempo-schermo o parental control, ma su come crescere figli resilienti, curiosi e saldi nei valori in un mondo plasmato dalle macchine. Propone il modello del genitore orchestratore, che bilancia digitale, natura, gioco libero e relazioni."],
+  ["P","14:40","14:50","Fabio Biscozzo","Mi ha salvato, mi ha mentito. Cronaca di un'amicizia con un'intelligenza artificiale","other","Real Estate Manager & Advisor","Il racconto di un rapporto personale con un'intelligenza artificiale, usata come strumento di consapevolezza ed evoluzione personale."],
+  ["P","14:50","15:10","Alessia Canfarini","Nessuna fuori dal codice","other","Group Equity Partner, BIP","L'AI impara anche le disuguaglianze contenute nei dati. L'inclusione vera si gioca nelle scelte di design, governance e competenze, non a valle dell'algoritmo."],
+  ["P","15:10","15:20","Andrea Montefreddo","Dall'assistente all'agente: diventa un'azienda agentica con Salesforce","other","Account Executive, Salesforce (sponsor)","Con Agentforce gli agenti pianificano ed eseguono attività usando dati e strumenti aziendali, con governance integrata, collaborazione umana e interazioni vocali in italiano."],
+  ["P","15:20","15:30","Diego Facchini","L'A.I. al servizio del recruiting: meno tempo sui CV","other","Founder & CEO, Data-Driven.Ai (sponsor)","Con il caso Talently: l'AI analizza le candidature, confronta le competenze e propone shortlist con valutazioni motivate. La scelta resta al recruiter."],
+  ["P","15:30","15:40","Sergio Ravera","Intervento sponsor","other","Sponsor Artera",NOABS],
+  ["P","15:40","16:00","Mafe de Baggis","Avanti insieme","other","Digital Strategist","I modelli linguistici costruiscono significato nella relazione con noi, e anche gli agenti più autonomi dipendono da obiettivi e strumenti definiti dalle persone. L'AI come mezzo per ampliare conoscenze e capacità condivise, non come sostituto."],
+  ["P","16:00","16:10","Lucia Maggi","Copyright nell'era generativa: le domande che il diritto non ha ancora risposto","opt","CEO e Partner, 42 Law Firm","L'AI generativa si allena su miliardi di opere protette e produce contenuti senza autorizzazioni esplicite. Quali tutele restano agli autori, cosa rischia chi usa questi strumenti, e dove il diritto d'autore europeo e l'AI Act lasciano ancora lacune.","Cosa si rischia usando contenuti generati: utile anche per chi scrive codice con l'AI."],
+  ["P","16:10","16:20","Serena Crippa","Coltivare i giovani talenti in azienda: l'AI come ponte tra le generazioni","other","Gen² Future Skills Strategist","L'AI come terreno comune tra generazioni: giovani e senior si scambiano competenze, esperienza e linguaggi, ripensando onboarding, affiancamento e crescita dei talenti."],
+  ["P","16:20","16:35","Davide Genco","Progettare esperienze nell'era dell'AI, tra università e professione","other","Designer e co-founder, Experience Design Academy, POLI.design","L'AI nei percorsi di formazione alla progettazione di esperienze: come strumento da usare con metodo, come soluzione da inserire nei nuovi servizi e come supporto all'apprendimento, dall'università all'upskilling."],
+  ["P","16:35","16:40","Salvatore Cataldo","Same Agent, Same Question, Different Answers","other","Head of Azure Solutions, Moresi.com (sponsor)","Quanto ci si può fidare delle azioni di un agente se i dati sono frammentati o fuori controllo? Sicurezza, governance e sovranità dei dati come fondamenta dell'AI agentica."],
+  ["P","16:40","16:45","Luigi D'Amato","Live AI Hacking Demo: quando le parole diventano un exploit","other","Head of Red Team Operations (sponsor Security Lab)","Demo dal vivo in ambiente controllato: prompt injection e jailbreak manipolano un'AI fino a farle eludere istruzioni e limiti di sicurezza. Il linguaggio diventa un vettore d'attacco. L'agenda non chiarisce se la demo avviene qui o alle 11:15 in Sala B3."],
+  ["P","16:45","16:55","Massimiliano Bacchetta e Tommaso Maggisano","Governare il dato per governare l'AI","opt","Moveo: Senior Product Specialist e Software Engineer (sponsor)","Con la piattaforma AI42, il ruolo di governance dei dati, sicurezza e RAG nella costruzione di sistemi AI affidabili, con risposte verificabili e accessi controllati.","RAG con controllo degli accessi: un tema pratico per dati interni. Slot sponsor."],
+
+  ["F","14:00","14:10","ATED","Apertura AI Challenge","other","","Apertura della sessione e presentazione della giuria. Accesso con tutti i biglietti."],
+  ["F","14:10","14:20","Martino Pozza","Virgil.ia","other","",FINAL],
+  ["F","14:20","14:30","Federico Brooks","The Question Is The Leak: Protecting Context and Grounding in Private AI","alt","","Progetto finalista sulla protezione del contesto e delle fonti nelle AI private. Nessun abstract pubblicato.","Si sovrappone con Vetrano in B2: dopo Codogno se ne sceglie uno."],
+  ["F","14:30","14:40","Emily Parlapiano","OCTO Imaging Technologies","other","",FINAL],
+  ["F","14:40","15:00","Giuria","Domande sui primi tre progetti","other","","Domande, approfondimenti e confronto con i primi tre progetti."],
+  ["F","15:00","15:10","Mattia Pedroncelli","Skylliq","other","",FINAL],
+  ["F","15:10","15:20","Mirko Gatti","ZeroEdge AI","other","",FINAL],
+  ["F","15:20","15:30","Cristian Cosentino","VISTA: Video In Sintesi Testuale Assistita","other","",FINAL],
+  ["F","15:30","15:50","Giuria","Domande sugli ultimi tre progetti","other","","Domande, approfondimenti e confronto con gli ultimi tre progetti."],
+  ["F","15:50","16:00","Giuria e ATED","Considerazioni finali","other","","Considerazioni della giuria e chiusura dell'AI Challenge."]
+].map((r, i) => ({ id: i, lane: r[0], start: r[1], end: r[2], who: r[3], title: r[4], prio: r[5], role: r[6] || "", desc: r[7] || "", why: r[8] || "" }));
+
+const DAY0 = 8 * 60, DAY1 = 18 * 60;
+const min = t => { const [h, m] = t.split(":").map(Number); return h * 60 + m; };
+const laneName = id => LANES.find(l => l.id === id).name;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const PATH = ["must", "rec", "opt", "alt"];
+const byTime = (a, b) => min(a.start) - min(b.start) || LANES.findIndex(l => l.id === a.lane) - LANES.findIndex(l => l.id === b.lane);
+const OPENABLE = S.filter(s => s.prio !== "brk").sort(byTime);
+
+const gantt = document.getElementById("gantt");
+const dlg = document.getElementById("card");
+let current = null;
+
+function build() {
+  const px = window.innerWidth < 640 ? 4 : 5;
+  const lab = window.innerWidth < 640 ? 92 : 150;
+  const tw = (DAY1 - DAY0) * px;
+  gantt.style.setProperty("--px", px + "px");
+  let h = `<div class="grid" style="--lab:${lab}px;--tw:${tw}px">`;
+  h += `<div class="lab"><small>Ora</small></div><div class="axis">`;
+  for (let m = DAY0; m <= DAY1; m += 30) {
+    const half = m % 60 !== 0;
+    h += `<div class="tick${half ? " half" : ""}" style="left:${(m - DAY0) * px}px">${half ? "" : `<span>${String(m / 60).padStart(2, "0")}:00</span>`}</div>`;
+  }
+  h += `</div>`;
+  for (const L of LANES) {
+    h += `<div class="lab"><b>${L.name}</b><small>${L.sub}</small></div><div class="track">`;
+    for (const s of S.filter(x => x.lane === L.id)) {
+      const a = min(s.start), b = min(s.end);
+      const w = (b - a) * px - 3;
+      const compact = w < 64;
+      const star = s.prio === "must" ? `<span class="s" aria-hidden="true">★</span>` : "";
+      const base = s.who.replace(/\s*\(.*?\)/g, "").split(/,| e | con /)[0].trim();
+      const shortName = base.split(" ").slice(-1)[0];
+      const label = `${s.start}–${s.end}, ${laneName(s.lane)}: ${s.who ? s.who + ", " : ""}${s.title}. ${PRIO[s.prio]}`;
+      const isBtn = s.prio !== "brk";
+      const tag = isBtn ? "button" : "div";
+      h += `<${tag} class="blk ${s.prio}${compact ? " compact" : ""}" style="left:${(a - DAY0) * px + 1}px;width:${w}px" ${isBtn ? `type="button" data-id="${s.id}" aria-haspopup="dialog"` : ""} title="${esc(label)}" aria-label="${esc(label)}">`;
+      if (compact) {
+        const fits = shortName && shortName.length * 6.6 <= w - 6;
+        h += `<span class="n">${s.prio === "must" ? "★" : (isBtn && fits ? esc(shortName) : "")}</span>`;
+      } else {
+        h += `<span class="t">${s.start}–${s.end}</span><span class="n">${star}${esc(s.who || s.title)}</span>${s.who ? `<span class="ti">${esc(s.title)}</span>` : ""}`;
+      }
+      h += `</${tag}>`;
+    }
+    h += `</div>`;
+  }
+  h += `</div>`;
+  gantt.innerHTML = h;
+  gantt.classList.toggle("dim", document.getElementById("focus").checked);
+  drawNow(px, lab);
+}
+
+function drawNow(px, lab) {
+  try {
+    const parts = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Zurich", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }).formatToParts(new Date());
+    const g = t => parts.find(p => p.type === t).value;
+    if (`${g("year")}-${g("month")}-${g("day")}` !== "2026-11-19") return;
+    const m = Number(g("hour")) * 60 + Number(g("minute"));
+    if (m < DAY0 || m > DAY1) return;
+    const line = document.createElement("div");
+    line.className = "now";
+    line.style.left = (lab + (m - DAY0) * px) + "px";
+    line.dataset.label = `Ora ${g("hour")}:${g("minute")}`;
+    gantt.querySelector(".grid").appendChild(line);
+  } catch (e) { /* fuso orario non disponibile: nessuna linea */ }
+}
+
+function overlaps(s) {
+  const a = min(s.start), b = min(s.end);
+  return S.filter(o => o.id !== s.id && o.lane !== s.lane && PATH.includes(o.prio) && min(o.start) < b && min(o.end) > a).sort(byTime);
+}
+
+function render(s) {
+  current = s;
+  const pill = document.getElementById("c-pill");
+  pill.className = "pill " + s.prio;
+  pill.textContent = PRIO[s.prio];
+  const ov = overlaps(s);
+  const isNoAbs = s.desc === NOABS;
+  document.getElementById("c-body").innerHTML = `
+    <div class="meta"><span>${s.start}–${s.end}</span><span>${laneName(s.lane)}</span><span>${min(s.end) - min(s.start)} min</span></div>
+    <h2 id="c-title">${esc(s.title)}</h2>
+    ${s.who ? `<div class="who"><b>${esc(s.who)}</b>${s.role ? `<small>${esc(s.role)}</small>` : ""}</div>` : ""}
+    ${s.why ? `<div class="blockx why"><h3>Perché seguirlo</h3><p>${esc(s.why)}</p></div>` : ""}
+    <div class="blockx"><h3>Di cosa parla</h3><p${isNoAbs ? ' style="color:var(--muted)"' : ""}>${esc(s.desc || NOABS)}</p></div>
+    ${ov.length ? `<div class="blockx"><h3>Nel percorso, in contemporanea</h3><ul>${ov.map(o => `<li><button type="button" class="linkish" data-id="${o.id}">${o.start} ${laneName(o.lane)}: ${o.prio === "must" ? "★ " : ""}${esc(o.who)}, ${esc(o.title)}</button></li>`).join("")}</ul></div>` : ""}
+    ${s.lane !== "F" && s.who && !/^(ATED|Giuria|Tavola rotonda)/.test(s.who) ? `<p class="src">Abstract originale sulla <a href="https://festival-ai.com/speakers/" target="_blank" rel="noopener">pagina speaker</a> del festival.</p>` : ""}`;
+  document.getElementById("c-body").scrollTop = 0;
+  const idx = OPENABLE.indexOf(s);
+  const prev = document.getElementById("c-prev"), next = document.getElementById("c-next");
+  prev.disabled = idx <= 0; next.disabled = idx >= OPENABLE.length - 1;
+}
+
+function openCard(id) {
+  render(S[id]);
+  if (!dlg.open) {
+    if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
+    document.documentElement.style.overflow = "hidden";
+  }
+}
+function closeCard() {
+  if (dlg.open) dlg.close();
+}
+dlg.addEventListener("close", () => {
+  document.documentElement.style.overflow = "";
+  if (current) {
+    const b = gantt.querySelector(`.blk[data-id="${current.id}"]`);
+    if (b) b.focus({ preventScroll: true });
+  }
+});
+dlg.addEventListener("click", e => { if (e.target === dlg) closeCard(); });
+document.getElementById("c-close").addEventListener("click", closeCard);
+document.getElementById("c-prev").addEventListener("click", () => { const i = OPENABLE.indexOf(current); if (i > 0) render(OPENABLE[i - 1]); });
+document.getElementById("c-next").addEventListener("click", () => { const i = OPENABLE.indexOf(current); if (i < OPENABLE.length - 1) render(OPENABLE[i + 1]); });
+document.getElementById("c-body").addEventListener("click", e => { const b = e.target.closest("button[data-id]"); if (b) render(S[Number(b.dataset.id)]); });
+
+function buildRoute() {
+  const items = S.filter(s => PATH.includes(s.prio)).sort(byTime);
+  document.getElementById("route").innerHTML = items.map(s => `
+    <li class="${s.prio}"><button type="button" data-id="${s.id}" aria-haspopup="dialog">
+      <span class="tm">${s.start}</span><span class="rm">${laneName(s.lane)}</span>
+      <span class="ttl">${s.prio === "must" ? '<span class="star" aria-hidden="true">★ </span>' : ""}<b>${esc(s.who)}</b>, ${esc(s.title)}${s.prio === "alt" ? " <span>(alternativa)</span>" : s.prio === "opt" ? " <span>(se c'è tempo)</span>" : ""}</span>
+      <span class="go" aria-hidden="true">›</span></button></li>`).join("");
+}
+
+gantt.addEventListener("click", e => { const b = e.target.closest(".blk[data-id]"); if (b) openCard(Number(b.dataset.id)); });
+document.getElementById("route").addEventListener("click", e => { const b = e.target.closest("button[data-id]"); if (b) openCard(Number(b.dataset.id)); });
+document.getElementById("focus").addEventListener("change", e => gantt.classList.toggle("dim", e.target.checked));
+let rt, lastW = window.innerWidth;
+window.addEventListener("resize", () => {
+  if (window.innerWidth === lastW) return;   /* su telefono la barra degli indirizzi cambia solo l'altezza */
+  lastW = window.innerWidth;
+  clearTimeout(rt); rt = setTimeout(build, 150);
+});
+
+build(); buildRoute();
+if (window.innerWidth < 640) gantt.scrollLeft = (10 * 60 - DAY0) * 4 - 8;
+</script>
+
+</body></html>
