@@ -1,6 +1,10 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Gantt del programma del Festival AI Lugano, 19 novembre 2026, con il percorso consigliato.">
 <title>Festival AI Lugano 2026</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
@@ -50,6 +54,7 @@
 
 * { box-sizing: border-box; }
 body {
+  margin: 0;
   background: var(--bg); color: var(--fg);
   font-family: var(--font-b); font-size: 15px; line-height: 1.5;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
@@ -77,11 +82,18 @@ h1 { font-family: var(--font-d); font-weight: 700; font-size: clamp(28px, 4.4vw,
 
 .toggle { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; user-select: none; }
 .toggle input { width: 18px; height: 18px; accent-color: var(--must); }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
+.dl { display: inline-flex; align-items: center; text-decoration: none; font: inherit; font-size: 14px; font-weight: 600; padding: 9px 16px; min-height: 40px; border-radius: 8px; border: 0; background: var(--must); color: var(--must-fg); cursor: pointer; }
+.dl:hover { filter: brightness(1.08); }
+.dl:focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }
 
 /* Gantt */
 .gantt { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow-x: auto; overscroll-behavior-x: contain; }
-.grid { display: grid; grid-template-columns: var(--lab) var(--tw); position: relative; }
+.grid { position: relative; width: calc(var(--lab) + var(--tw)); }
+.row { display: flex; }
+.row > .axis, .row > .track { flex: 0 0 var(--tw); width: var(--tw); }
 .lab {
+  flex: 0 0 var(--lab); width: var(--lab);
   position: sticky; left: 0; z-index: 3; background: var(--surface);
   border-right: 1px solid var(--line); border-bottom: 1px solid var(--line);
   padding: 10px; display: flex; flex-direction: column; justify-content: center; gap: 2px;
@@ -207,6 +219,8 @@ dialog#card[open] { display: flex; flex-direction: column; }
 }
 @media (prefers-reduced-motion: reduce) { .blk { transition: none; } .blk:hover { transform: none; } }
 </style>
+</head>
+<body>
 
 <div class="wrap">
   <header>
@@ -224,7 +238,10 @@ dialog#card[open] { display: flex; flex-direction: column; }
       <span><i class="sw other"></i>Altro</span>
       <span><i class="sw brk"></i>Pausa</span>
     </div>
-    <label class="toggle" for="focus"><input type="checkbox" id="focus" checked> Metti in evidenza il percorso</label>
+    <div class="actions">
+      <label class="toggle" for="focus"><input type="checkbox" id="focus" checked> Metti in evidenza il percorso</label>
+      <a class="dl" id="dl" href="Festival%20AI%202026%20Lugano%20agenda%20e%20percorso%20consigliato.pdf" download="Festival AI 2026 Lugano agenda e percorso consigliato.pdf">Scarica PDF</a>
+    </div>
   </div>
 
   <div class="gantt" id="gantt" role="region" aria-label="Programma per sala e orario" tabindex="0"></div>
@@ -398,14 +415,14 @@ function build() {
   const tw = (DAY1 - DAY0) * px;
   gantt.style.setProperty("--px", px + "px");
   let h = `<div class="grid" style="--lab:${lab}px;--tw:${tw}px">`;
-  h += `<div class="lab"><small>Ora</small></div><div class="axis">`;
+  h += `<div class="row"><div class="lab"><small>Ora</small></div><div class="axis">`;
   for (let m = DAY0; m <= DAY1; m += 30) {
     const half = m % 60 !== 0;
     h += `<div class="tick${half ? " half" : ""}" style="left:${(m - DAY0) * px}px">${half ? "" : `<span>${String(m / 60).padStart(2, "0")}:00</span>`}</div>`;
   }
-  h += `</div>`;
+  h += `</div></div>`;
   for (const L of LANES) {
-    h += `<div class="lab"><b>${L.name}</b><small>${L.sub}</small></div><div class="track">`;
+    h += `<div class="row"><div class="lab"><b>${L.name}</b><small>${L.sub}</small></div><div class="track">`;
     for (const s of S.filter(x => x.lane === L.id)) {
       const a = min(s.start), b = min(s.end);
       const w = (b - a) * px - 3;
@@ -425,7 +442,7 @@ function build() {
       }
       h += `</${tag}>`;
     }
-    h += `</div>`;
+    h += `</div></div>`;
   }
   h += `</div>`;
   gantt.innerHTML = h;
@@ -519,5 +536,5 @@ window.addEventListener("resize", () => {
 build(); buildRoute();
 if (window.innerWidth < 640) gantt.scrollLeft = (10 * 60 - DAY0) * 4 - 8;
 </script>
-
-</body></html>
+</body>
+</html>
